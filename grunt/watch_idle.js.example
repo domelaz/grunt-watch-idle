@@ -1,0 +1,65 @@
+/**
+ * Notification examples for Ubuntu
+ *
+ * For e-mail notification install `nodemailer` module
+ * and set environment variables:
+ *
+ * GWIDL_MAIL_USER, GWIDL_MAIL_PASS -- for auth in gmail;
+ * GWIDL_MAIL_TO, GWIDL_MAIL_FROM -- recipients;
+ */
+
+'use strict';
+
+const spawn = require('child_process').spawn;
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GWIDL_MAIL_USER,
+    pass: process.env.GWIDL_MAIL_PASS,
+  }
+}, {
+  // default values for sendMail method
+  from: process.env.GWIDL_MAIL_FROM,
+  headers: {
+    'X-Grunt-Header': 'Grunt notify'
+  }
+});
+
+module.exports = function(grunt) {
+  return {
+    // 10 min idle, on-screen notification
+    visual: {
+      timeout: 10 * 60 * 1000,
+      action: function() {
+        grunt.log.writeln('notify-send'.yellow);
+        spawn('/usr/bin/notify-send', [
+          '-i', '/usr/share/icons/hicolor/32x32/actions/system-restart.png',
+          'Коммиты где?',
+          'За работу, чувачок!'
+        ]);
+      }
+    },
+    // 20 min, Play alarm with PulseAudio
+    sound: {
+      timeout: 20 * 60 * 1000,
+      action: function() {
+        spawn('pacmd', [
+          'play-file',
+          '/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga', '0'
+        ]);
+      }
+    },
+    // 1 hour, send e-mail
+    remote: {
+      timeout: 60 * 60 * 1000,
+      action: function() {
+        transporter.sendMail({
+          to: process.env.GWIDL_MAIL_TO,
+          subject: 'Grunt from "' + require('os').hostname() + '"',
+          text: 'You idling, dude!'
+        });
+      }
+    }
+  };
+};
