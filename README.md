@@ -86,4 +86,5 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+ * 2016-03-24   v0.1.1   Fix Grunt 1.0.0-rc suggestion
  * 2016-01-01   v0.1.0   Happy New Code!
